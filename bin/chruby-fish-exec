@@ -1,0 +1,14 @@
+#!/usr/bin/env fish
+
+set -q CHRUBY_ROOT; or set CHRUBY_ROOT /usr/local
+
+set -l tmpfile (mktemp)
+cat $CHRUBY_ROOT/bin/chruby-exec | sed -e 's/ &&/; and/' > "$tmpfile"
+chmod +x "$tmpfile"
+
+set tmptop (cd (dirname "$tmpfile")/..; pwd)
+mkdir -p "$tmptop/share/chruby"
+cp "$CHRUBY_ROOT/share/chruby/chruby.sh" "$tmptop/share/chruby/chruby.sh"
+
+eval "$tmpfile" $argv
+rm -r "$tmptop/share" "$tmpfile"

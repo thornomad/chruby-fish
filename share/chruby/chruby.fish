@@ -168,3 +168,24 @@ function chruby
       end
   end
 end
+
+function chruby-exec
+  set chruby_exec_path (which chruby-exec)
+
+  if test ! -x "$chruby_exec_path"
+    echo "missing executable: chruby-exec" 2>&1
+    return 1
+  end
+
+  set -l tmpfile (mktemp)
+  cat $CHRUBY_ROOT/bin/chruby-exec | sed -e 's/ &&/; and/' > "$tmpfile"
+  chmod +x "$tmpfile"
+
+  set tmptop (cd (dirname "$tmpfile")/..; pwd)
+  mkdir -p "$tmptop/share/chruby"
+  cp "$CHRUBY_ROOT/share/chruby/chruby.sh" "$tmptop/share/chruby/chruby.sh"
+
+  cat "$tmpfile"
+  eval "$tmpfile" $argv
+  rm -r "$tmptop/share" "$tmpfile"
+end
